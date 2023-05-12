@@ -5,7 +5,7 @@ export async function postClient(req,res){
     try{
         const data = await db.query("SELECT * FROM customers WHERE cpf=$1",[req.body.cpf])
 
-        if(data.rowCount > 0) return res.status(400).send("the customer is already registered")
+        if(data.rowCount > 0) return res.status(409).send("the customer is already registered")
 
         await db.query(`INSERT INTO customers (name,phone,cpf,birthday) 
         VALUES ($1,$2,$3,$4)`,[req.body.name,req.body.phone,req.body.cpf,req.body.birthday])

@@ -81,10 +81,29 @@ export async function returnRental(req,res){
         }
 
 
-        const resposta  = await db.query(`UPDATE rentals SET "returnDate"=$1, "delayFee"=$2
+        await db.query(`UPDATE rentals SET "returnDate"=$1, "delayFee"=$2
                                             WHERE id=$3;`,[returnDate,delayFee,req.params.id])
-        res.send(resposta)
+        res.sendStatus(200)
     } catch(err){
+        return res.status(500).send(err)
+    }
+}
+
+export async function deleteRental(req,res){
+
+    try{
+        const rental = await db.query("SELECT * FROM rentals WHERE id=$1",[req.params.id])
+
+        if(rental.rowCount === 0 ) return res.status(404).send("rental not found")
+
+        if(!rental.rows[0].returnDate) return res.status(409).send("rental is not ended")
+
+        await db.query(`DELETE FROM rentals WHERE id=$1`,[req.params.id])
+
+        res.sendStatus(200)
+
+    } catch(err){
+        
         return res.status(500).send(err)
     }
 }

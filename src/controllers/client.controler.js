@@ -38,7 +38,7 @@ export async function getclient(req,res){
 
         if(clients.rowCount == 0 ) return res.sendStatus(404)
 
-        res.send(clients.rows)
+        res.send(clients.rows[0])
     } catch(err){
 
         res.status(500).send(err)

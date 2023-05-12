@@ -31,3 +31,31 @@ export async function postRental(req,res){
         return res.status(500).send(err)
     }
 }
+
+export async function getRental(req,res){
+
+    try{
+
+        const data = await db.query(`SELECT rentals.*,customers.name AS "customerName", games.name AS "gameName" FROM rentals 
+                                        JOIN customers ON rentals."customerId"=customers.id
+                                        JOIN games ON rentals."gameId"=games.id;`)
+
+        const rentals = data.rows.map((r)=>{
+            const customer = {id: r.customerId, name: r.customerName}
+            const game = {id: r.gameId, name: r.gameName}
+
+            const rental = {...r, customer, game}
+
+            delete rental.customerName
+            delete rental.gameName
+
+            return rental
+        })
+
+        res.status(200).send(rentals)
+
+    } catch(err){
+
+        return res.status(500).send(err)
+    }
+}

@@ -96,7 +96,7 @@ export async function deleteRental(req,res){
 
         if(rental.rowCount === 0 ) return res.status(404).send("rental not found")
 
-        if(!rental.rows[0].returnDate) return res.status(409).send("rental is not ended")
+        if(!rental.rows[0].returnDate) return res.status(400).send("rental is not ended")
 
         await db.query(`DELETE FROM rentals WHERE id=$1`,[req.params.id])
 

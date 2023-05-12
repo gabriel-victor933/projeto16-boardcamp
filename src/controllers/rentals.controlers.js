@@ -59,3 +59,32 @@ export async function getRental(req,res){
         return res.status(500).send(err)
     }
 }
+
+export async function returnRental(req,res){
+
+    try{
+
+        const rentals = await db.query(`SELECT * FROM rentals WHERE id=$1`,[req.params.id])
+        if(rentals.rowCount === 0 ) return res.status(404).send("rental doesnt exist")
+
+        const rental = rentals.rows[0]
+        if(rental.returnDate) return res.status(400).send("rent has already ended")
+
+        const returnDate = dayjs().format("YYYY-MM-DD")
+        const dayPast = dayjs().diff(rental.rentDate.toString(),"day")
+        
+
+        let delayFee = 0
+
+        if(dayPast > rental.daysRented ){
+            delayFee = (dayPast-rental.daysRented)*rental.originalPrice/rental.daysRented
+        }
+
+
+        const resposta  = await db.query(`UPDATE rentals SET "returnDate"=$1, "delayFee"=$2
+                                            WHERE id=$3;`,[returnDate,delayFee,req.params.id])
+        res.send(resposta)
+    } catch(err){
+        return res.status(500).send(err)
+    }
+}

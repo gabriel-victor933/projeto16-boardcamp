@@ -10,8 +10,19 @@ export async function postGame(req,res){
                                         VALUES ($1,$2,$3,$4)`,[req.body.name,req.body.image,req.body.stockTotal,req.body.pricePerDay])
         res.sendStatus(201)
     } catch(err){
-        res.send(err)
+        res.status(500).send(err)
     }
 
 
 } 
+
+export async function getGame(req,res){
+
+    try{
+        const games = await db.query("SELECT * FROM games;")
+
+        res.send(games.rows)
+    } catch(err){
+        res.status(500).send(err)
+    }
+}

@@ -1,5 +1,7 @@
 import {db} from "../dbs/connectDb.js"
+import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 import dayjs from "dayjs"
+dayjs.extend(customParseFormat);
 
 export async function postRental(req,res){
 
@@ -38,6 +40,7 @@ export async function getRental(req,res){
     const gameId = (parseInt(req.query.gameId) || null)
     const offset = (req.query.offset || null)
     const limit = (req.query.limit || null)
+
     const validColumns = ["id","customerName","gameName","customerId","gameId","rentDate","daysRented","returnDate","originalPrice","delayFee"]
     let orderClause = "";
 
@@ -45,16 +48,27 @@ export async function getRental(req,res){
         orderClause  = `ORDER BY "${req.query.order}" ${req.query.desc==="true"? "DESC":"ASC"}`
     }
 
+    let statusClause= ""
+    switch(req.query.status){
+        case "open": statusClause = `AND rentals."returnDate" IS NULL`;break;
+        case "close": statusClause = `AND rentals."returnDate" IS NOT NULL`;break;
+        default: break;
+    }
+
+    const startDate = (dayjs(req.query.startDate, 'YYYY-MM-DD', true).isValid()? req.query.startDate : null)
+    
     try{
 
         const data = await db.query(`SELECT rentals.*,customers.name AS "customerName", games.name AS "gameName" FROM rentals 
                                         JOIN customers ON rentals."customerId"=customers.id
                                         JOIN games ON rentals."gameId"=games.id
                                         WHERE customers.id = COALESCE($1,customers.id)
+                                        ${statusClause}
                                         AND games.id = COALESCE($2,games.id)
+                                        AND rentals."rentDate" >= TO_DATE(COALESCE($3,'0001-01-01'),'YYYY-MM-DD')
                                         ${orderClause}
-                                        OFFSET COALESCE($3,0)
-                                        LIMIT $4;`,[customerId,gameId, offset, limit])
+                                        OFFSET COALESCE($4,0)
+                                        LIMIT $5;`,[customerId,gameId, startDate, offset, limit])
 
        const rentals = data.rows.map((r)=>{
             const customer = {id: r.customerId, name: r.customerName}

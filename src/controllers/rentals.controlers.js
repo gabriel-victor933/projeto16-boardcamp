@@ -51,7 +51,7 @@ export async function getRental(req,res){
     let statusClause= ""
     switch(req.query.status){
         case "open": statusClause = `AND rentals."returnDate" IS NULL`;break;
-        case "close": statusClause = `AND rentals."returnDate" IS NOT NULL`;break;
+        case "closed": statusClause = `AND rentals."returnDate" IS NOT NULL`;break;
         default: break;
     }
 

@@ -31,7 +31,8 @@ export async function getclients(req,res){
     }
 
     try{
-        const clients = await db.query(`SELECT * FROM customers WHERE customers.cpf ILIKE $1
+        const clients = await db.query(`SELECT * FROM customers 
+                                        WHERE customers.cpf ILIKE $1
                                         ${orderClause} 
                                         OFFSET COALESCE($2,0)
                                         LIMIT $3;;`, [`${cpf}%`,offset,limit])

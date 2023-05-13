@@ -26,12 +26,10 @@ export async function getGames(req,res){
     let orderClause = "";
 
     if(validColumns.includes(req.query.order)){
-        orderClause  = `ORDER BY ${req.query.order} ${req.query.desc==="true"? "DESC":"ASC"}`
+        orderClause  = `ORDER BY "${req.query.order}" ${req.query.desc==="true"? "DESC":"ASC"}`
     }
     
     
-
-    console.log(orderClause)
     try{
         const games = await db.query(`SELECT * FROM games  
                                       WHERE games.name ILIKE $1

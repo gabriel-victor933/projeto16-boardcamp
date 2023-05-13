@@ -27,7 +27,7 @@ export async function getclients(req,res){
     let orderClause = "";
 
     if(validColumns.includes(req.query.order)){
-        orderClause  = `ORDER BY ${req.query.order} ${req.query.desc==="true"? "DESC":"ASC"}`
+        orderClause  = `ORDER BY customers.${req.query.order} ${req.query.desc==="true"? "DESC":"ASC"}`
     }
 
     try{
@@ -49,7 +49,8 @@ export async function getclient(req,res){
 
 
     try{
-        const clients = await db.query("SELECT * FROM customers WHERE id=$1;",[req.params.id])
+        const clients = await db.query(`SELECT *,TO_CHAR(customers.birthday, 'YYYY-MM-DD') AS birthday 
+                                        FROM customers WHERE id=$1;`,[req.params.id])
 
         if(clients.rowCount == 0 ) return res.sendStatus(404)
 

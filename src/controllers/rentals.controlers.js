@@ -38,6 +38,12 @@ export async function getRental(req,res){
     const gameId = (parseInt(req.query.gameId) || null)
     const offset = (req.query.offset || null)
     const limit = (req.query.limit || null)
+    const validColumns = ["id","customerName","gameName","customerId","gameId","rentDate","daysRented","returnDate","originalPrice","delayFee"]
+    let orderClause = "";
+
+    if(validColumns.includes(req.query.order)){
+        orderClause  = `ORDER BY "${req.query.order}" ${req.query.desc==="true"? "DESC":"ASC"}`
+    }
 
     try{
 
@@ -46,10 +52,11 @@ export async function getRental(req,res){
                                         JOIN games ON rentals."gameId"=games.id
                                         WHERE customers.id = COALESCE($1,customers.id)
                                         AND games.id = COALESCE($2,games.id)
+                                        ${orderClause}
                                         OFFSET COALESCE($3,0)
                                         LIMIT $4;`,[customerId,gameId, offset, limit])
 
-        const rentals = data.rows.map((r)=>{
+       const rentals = data.rows.map((r)=>{
             const customer = {id: r.customerId, name: r.customerName}
             const game = {id: r.gameId, name: r.gameName}
 

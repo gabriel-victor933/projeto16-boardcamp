@@ -22,10 +22,20 @@ export async function getGames(req,res){
     const name = (req.query.name || "")
     const offset = (req.query.offset || null)
     const limit = (req.query.limit || null)
+    const validColumns = ["id","name","image","stockTotal","pricePerDay"]
+    let orderClause = "";
+
+    if(validColumns.includes(req.query.order)){
+        orderClause  = `ORDER BY ${req.query.order} ${req.query.desc==="true"? "DESC":"ASC"}`
+    }
     
+    
+
+    console.log(orderClause)
     try{
         const games = await db.query(`SELECT * FROM games  
-                                      WHERE games.name ILIKE $1 
+                                      WHERE games.name ILIKE $1
+                                      ${orderClause} 
                                       OFFSET COALESCE($2,0)
                                       LIMIT $3;`,[`${name}%`,offset,limit])
 

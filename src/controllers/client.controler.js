@@ -23,9 +23,16 @@ export async function getclients(req,res){
     const cpf = (req.query.cpf || "")
     const offset = (req.query.offset || null)
     const limit = (req.query.limit || null)
+    const validColumns = ["id","name","phone","cpf","birthday"]
+    let orderClause = "";
+
+    if(validColumns.includes(req.query.order)){
+        orderClause  = `ORDER BY ${req.query.order} ${req.query.desc==="true"? "DESC":"ASC"}`
+    }
 
     try{
-        const clients = await db.query(`SELECT * FROM customers WHERE customers.cpf ILIKE $1 
+        const clients = await db.query(`SELECT * FROM customers WHERE customers.cpf ILIKE $1
+                                        ${orderClause} 
                                         OFFSET COALESCE($2,0)
                                         LIMIT $3;;`, [`${cpf}%`,offset,limit])
 

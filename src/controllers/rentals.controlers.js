@@ -34,11 +34,16 @@ export async function postRental(req,res){
 
 export async function getRental(req,res){
 
+    const customerId = (parseInt(req.query.customerId) || null)
+    const gameId = (parseInt(req.query.gameId) || null)
+
     try{
 
         const data = await db.query(`SELECT rentals.*,customers.name AS "customerName", games.name AS "gameName" FROM rentals 
                                         JOIN customers ON rentals."customerId"=customers.id
-                                        JOIN games ON rentals."gameId"=games.id;`)
+                                        JOIN games ON rentals."gameId"=games.id
+                                        WHERE customers.id = COALESCE($1,customers.id)
+                                        AND games.id = COALESCE($2,games.id);`,[customerId,gameId])
 
         const rentals = data.rows.map((r)=>{
             const customer = {id: r.customerId, name: r.customerName}

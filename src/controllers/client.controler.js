@@ -20,8 +20,10 @@ export async function postClient(req,res){
 
 export async function getclients(req,res){
 
+    const cpf = (req.query.cpf || "")
+
     try{
-        const clients = await db.query("SELECT * FROM customers;")
+        const clients = await db.query(`SELECT * FROM customers WHERE customers.cpf ILIKE $1 ;`,[`${cpf}%`])
 
         res.send(clients.rows)
     } catch(err){

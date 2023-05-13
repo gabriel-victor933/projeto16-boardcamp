@@ -31,11 +31,12 @@ export async function getclients(req,res){
     }
 
     try{
-        const clients = await db.query(`SELECT * FROM customers 
+        const clients = await db.query(`SELECT *,TO_CHAR(customers.birthday, 'YYYY-MM-DD') AS birthday 
+                                        FROM customers 
                                         WHERE customers.cpf ILIKE $1
                                         ${orderClause} 
                                         OFFSET COALESCE($2,0)
-                                        LIMIT $3;;`, [`${cpf}%`,offset,limit])
+                                        LIMIT $3;`, [`${cpf}%`,offset,limit])
 
         res.send(clients.rows)
     } catch(err){

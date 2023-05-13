@@ -16,5 +16,5 @@ app.use(clientRouter)
 app.use(rentalsRouter)
 
 
-
-app.listen(process.env.PORT,()=>console.log("running server"))
+const PORT  = process.env.PORT || 5000
+app.listen(PORT,()=>console.log("running server"))

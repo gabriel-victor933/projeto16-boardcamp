@@ -20,9 +20,14 @@ export async function postGame(req,res){
 export async function getGames(req,res){
 
     const name = (req.query.name || "")
+    const offset = (req.query.offset || null)
+    const limit = (req.query.limit || null)
     
     try{
-        const games = await db.query(`SELECT * FROM games WHERE games.name ILIKE $1 ;`,[`${name}%`])
+        const games = await db.query(`SELECT * FROM games  
+                                      WHERE games.name ILIKE $1 
+                                      OFFSET COALESCE($2,0)
+                                      LIMIT $3;`,[`${name}%`,offset,limit])
 
         res.send(games.rows)
     } catch(err){

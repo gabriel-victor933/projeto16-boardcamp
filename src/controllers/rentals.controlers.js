@@ -36,6 +36,8 @@ export async function getRental(req,res){
 
     const customerId = (parseInt(req.query.customerId) || null)
     const gameId = (parseInt(req.query.gameId) || null)
+    const offset = (req.query.offset || null)
+    const limit = (req.query.limit || null)
 
     try{
 
@@ -43,7 +45,9 @@ export async function getRental(req,res){
                                         JOIN customers ON rentals."customerId"=customers.id
                                         JOIN games ON rentals."gameId"=games.id
                                         WHERE customers.id = COALESCE($1,customers.id)
-                                        AND games.id = COALESCE($2,games.id);`,[customerId,gameId])
+                                        AND games.id = COALESCE($2,games.id)
+                                        OFFSET COALESCE($3,0)
+                                        LIMIT $4;`,[customerId,gameId, offset, limit])
 
         const rentals = data.rows.map((r)=>{
             const customer = {id: r.customerId, name: r.customerName}

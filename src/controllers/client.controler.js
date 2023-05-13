@@ -21,9 +21,13 @@ export async function postClient(req,res){
 export async function getclients(req,res){
 
     const cpf = (req.query.cpf || "")
+    const offset = (req.query.offset || null)
+    const limit = (req.query.limit || null)
 
     try{
-        const clients = await db.query(`SELECT * FROM customers WHERE customers.cpf ILIKE $1 ;`,[`${cpf}%`])
+        const clients = await db.query(`SELECT * FROM customers WHERE customers.cpf ILIKE $1 
+                                        OFFSET COALESCE($2,0)
+                                        LIMIT $3;;`, [`${cpf}%`,offset,limit])
 
         res.send(clients.rows)
     } catch(err){
